@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Rent a Car - Car Rental System{% endblock %}
+{% block content %}
+<div class="shop-container">
+    <h1>Available Cars</h1>
+    <div class="product-grid">
+        {% for car in cars %}
+        <div class="product-card">
+            <h3>{{ car.model }}</h3>
+            <p class="brand">{{ car.brand }}</p>
+            <p class="price">${{ car.price_per_day }} per day</p>
+            <form method="POST" action="{{ url_for('rent') }}" class="purchase-form">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.start_date.label }} {{ form.start_date }}
+                    {{ form.end_date.label }} {{ form.end_date }}
+                    <input type="hidden" name="car_id" value="{{ car.id }}">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<style>
+    .shop-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    .product-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    .product-card h3 {
+        margin-top: 0;
+        color: var(--primary-color);
+    }
+    .brand {
+        font-size: 1.1em;
+        color: #555;
+    }
+    .price {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: var(--secondary-color);
+    }
+    .purchase-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .quantity-input {
+        width: 60px;
+        padding: 5px;
+        margin-right: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .btn-primary {
+        background-color: #28a745;
+    }
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+    @media (max-width: 768px) {
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Car Rental System{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f4f7f9;
+            --text-color: #333;
+            --nav-color: #2c3e50;
+            --nav-width: 250px;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        body.dark-mode {
+            --primary-color: #1abc9c;
+            --secondary-color: #16a085;
+            --background-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --nav-color: #34495e;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            transition: var(--transition);
+        }
+        .sidebar {
+            width: var(--nav-width);
+            background-color: var(--nav-color);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            padding-top: 20px;
+            transition: var(--transition);
+        }
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar nav ul li {
+            margin-bottom: 5px;
+        }
+        .sidebar nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: block;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+        .sidebar nav ul li a:hover, .sidebar nav ul li a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--secondary-color);
+        }
+        .main-content {
+            margin-left: var(--nav-width);
+            padding: 40px;
+            flex-grow: 1;
+            transition: var(--transition);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .toggle-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--text-color);
+            z-index: 1000;
+        }
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        body.dark-mode .form-container {
+            background: #34495e;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+        body.dark-mode .form-group input {
+            background-color: #2c3e50;
+            color: var(--text-color);
+            border-color: #16a085;
+        }
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+        }
+        .caps-lock-indicator {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ffeb3b;
+            color: #333;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            display: none;
+            border: 1px solid #f0ad4e;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        .btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            padding-right: 35px;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+        }
+        .alert .close-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 20px;
+            font-weight: bold;
+            color: inherit;
+            text-decoration: none;
+            opacity: 0.5;
+        }
+        .alert .close-btn:hover {
+            opacity: 1;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            padding: 25px;
+            transition: var(--transition);
+        }
+        body.dark-mode .card {
+            background: #34495e;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .sidebar-header {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+    <script>
+        function togglePassword(id) {
+            const passwordField = document.getElementById(id);
+            const toggleIcon = document.getElementById(id + '-toggle');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.textContent = 'visibility';
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.textContent = 'visibility_off';
+            }
+        }
+        function checkCapsLock(event) {
+            const capsLockOn = event.getModifierState && event.getModifierState('CapsLock');
+            const indicator = event.target.nextElementSibling.nextElementSibling;
+            if (capsLockOn) {
+                indicator.style.display = 'block';
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 1000);
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInputs = document.querySelectorAll('input[type="password"]');
+            passwordInputs.forEach(input => {
+                input.addEventListener('keydown', checkCapsLock);
+                input.addEventListener('keyup', checkCapsLock);
+                input.addEventListener('mousedown', checkCapsLock);
+            });
+            const priceInput = document.querySelector('input[name="price_per_day"]');
+            if (priceInput) {
+                priceInput.addEventListener('keypress', function(event) {
+                    if (!/[0-9.]/.test(event.key)) {
+                        event.preventDefault();
+                    }
+                });
+                priceInput.addEventListener('input', function() {
+                    if (!/^\d*\.?\d*$/.test(this.value)) {
+                        this.value = this.value.replace(/[^0-9.]/g, '');
+                    }
+                });
+            }
+        });
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            updateDarkModeButton(isDarkMode);
+        }
+        function updateDarkModeButton(isDarkMode) {
+            const button = document.querySelector('.toggle-button');
+            button.innerHTML = isDarkMode
+                ? '<span class="material-icons-outlined">light_mode</span>'
+                : '<span class="material-icons-outlined">dark_mode</span>';
+        }
+        function applyDarkMode() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+            updateDarkModeButton(isDarkMode);
+        }
+        document.addEventListener('DOMContentLoaded', applyDarkMode);
+    </script>
+</head>
+<body>
+    <button class="toggle-button" onclick="toggleDarkMode()">
+        <span class="material-icons-outlined">dark_mode</span>
+    </button>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            Car Rental System
+        </div>
+        <nav>
+            <ul>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('dashboard') }}" {% if request.endpoint == 'dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+                    {% if current_user.role == 'admin' %}
+                        <li><a href="{{ url_for('manage_cars') }}" {% if request.endpoint == 'manage_cars' %}class="active"{% endif %}>Manage Cars</a></li>
+                        <li><a href="{{ url_for('manage_users') }}" {% if request.endpoint == 'manage_users' %}class="active"{% endif %}>Manage Users</a></li>
+                        <li><a href="{{ url_for('view_rentals') }}" {% if request.endpoint == 'view_rentals' %}class="active"{% endif %}>View Rentals</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('rent') }}" {% if request.endpoint == 'rent' %}class="active"{% endif %}>Rent a Car</a></li>
+                        <li><a href="{{ url_for('profile') }}" {% if request_endpoint == 'profile' %}class="active"{% endif %}>Profile</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" {% if request.endpoint == 'login' %}class="active"{% endif %}>Login</a></li>
+                    <li><a href="{{ url_for('register') }}" {% if request.endpoint == 'register' %}class="active"{% endif %}>Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <div class="main-content">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <a href="#" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

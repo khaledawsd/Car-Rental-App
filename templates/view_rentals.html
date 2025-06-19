@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}View Rentals - Car Rental System{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Rental Records</h2>
+    <ul>
+        {% for rental in rentals %}
+            <li>Car: {{ rental.car.model }} ({{ rental.car.brand }}), User: {{ rental.user.username }}, Start Date: {{ rental.start_date }}, End Date: {{ rental.end_date }}, Total Price: ${{ rental.total_price }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %} 

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Manage Cars - Car Rental System{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Manage Cars</h2>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.model }}
+        </div>
+        <div class="form-group">
+            {{ form.brand }}
+        </div>
+        <div class="form-group">
+            {{ form.price_per_day }}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+    <div class="card">
+        <h3>Existing Available Cars:</h3>
+        <ul>
+            {% for car in cars %}
+                <li>{{ car.model }} ({{ car.brand }}) - ${{ car.price_per_day }} per day</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %} 

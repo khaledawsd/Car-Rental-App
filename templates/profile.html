@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Profile - Car Rental System{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>User Profile</h2>
+    <p>Total Spent: ${{ total_spent }}</p>
+    <div class="card">
+        <h3>Expenses by Car</h3>
+        <ul>
+            {% for car, amount in car_expenses.items() %}
+                <li>{{ car }}: ${{ amount }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %} 
