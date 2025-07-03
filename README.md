@@ -27,7 +27,7 @@ A modern, secure, and user-friendly car rental management system built with Flas
 
 1. **Clone the repository**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/khaledawsd/Car-Rental-App.git
    cd "Car rental Assigment code"
    ```
 
