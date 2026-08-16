@@ -6,7 +6,7 @@
 <div class="page-head">
     <div>
         <h1>Available Cars</h1>
-        <p>Choose a car, then pick your dates. Minimum rental is 4 hours.</p>
+        <p>Choose your dates, then pick a car. Minimum rental is 4 hours.</p>
     </div>
 </div>
 
@@ -20,36 +20,51 @@
     </div>
 {% endif %}
 
-{% if cars %}
-    <div class="grid-cards">
-        {% for car in cars %}
-            <div class="card car-card">
-                <div class="card-body">
-                    <div>
-                        <h2 class="car-title">{{ car.model }}</h2>
-                        <p class="car-brand">{{ car.brand }}</p>
-                    </div>
-                    <div class="car-price">
-                        ${{ '%.2f'|format(car.price_per_day) }} <span>per day</span>
-                    </div>
-                    <div class="divider"></div>
-                    <form method="POST" action="{{ url_for('rent') }}">
-                        {{ form.hidden_tag() }}
-                        <input type="hidden" name="car_id" value="{{ car.id }}">
-                        {# "Now" only on pick-up; a return time relative to this
-                           moment is meaningless for a multi-day rental. #}
-                        {{ datetime_field('start_date', 'Pick-up', form.start_date.data, 'start-' ~ car.id, show_now=true) }}
-                        {{ datetime_field('end_date', 'Return', form.end_date.data, 'end-' ~ car.id) }}
-                        <button type="submit" class="btn btn-primary btn-block">{{ icon('car') }} Rent this car</button>
-                    </form>
-                </div>
+{# One form for the whole page. The dates are chosen once at the top, and each
+   car's button submits its own id via name/value -- so there is a single pair
+   of pickers instead of one per car, and they get a container wide enough to
+   lay date and time out side by side. #}
+<form method="POST" action="{{ url_for('rent') }}">
+    {{ form.hidden_tag() }}
+
+    <div class="card booking-bar">
+        <div class="card-head">{{ icon('calendar') }} Your dates</div>
+        <div class="card-body">
+            <div class="booking-row">
+                {# "Now" only on pick-up; a return time relative to this moment
+                   is meaningless for a multi-day rental. #}
+                {{ datetime_field('start_date', 'Pick-up', form.start_date.data, 'start', show_now=true) }}
+                {{ datetime_field('end_date', 'Return', form.end_date.data, 'end') }}
             </div>
-        {% endfor %}
+        </div>
     </div>
-{% else %}
-    <div class="card">
-        {{ empty_state('car', 'No cars available right now',
-                       'Every car is currently rented out. Please check back later.') }}
-    </div>
-{% endif %}
+
+    {% if cars %}
+        <div class="grid-cards">
+            {% for car in cars %}
+                <div class="card car-card">
+                    <div class="card-body">
+                        <div>
+                            <h2 class="car-title">{{ car.model }}</h2>
+                            <p class="car-brand">{{ car.brand }}</p>
+                        </div>
+                        <div class="car-price">
+                            ${{ '%.2f'|format(car.price_per_day) }} <span>per day</span>
+                        </div>
+                        <div class="divider"></div>
+                        <button type="submit" name="car_id" value="{{ car.id }}"
+                                class="btn btn-primary btn-block">
+                            {{ icon('car') }} Rent this car
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            {{ empty_state('car', 'No cars available right now',
+                           'Every car is currently rented out. Please check back later.') }}
+        </div>
+    {% endif %}
+</form>
 {% endblock %}

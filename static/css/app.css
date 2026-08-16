@@ -797,3 +797,36 @@ button.dt-time .chev { width: 16px; height: 16px; color: var(--ink-dim); flex: n
 @media (max-width: 420px) {
   .timemenu { left: 0; right: auto; width: 100%; }
 }
+
+/* ---------- booking bar ---------- */
+/* The date and time controls need a wide container to sit side by side. They
+   used to live inside each car card, where 272px was not enough: the
+   dd/mm/yyyy placeholder was clipped, "10:00 AM" wrapped onto two lines, and
+   the open panel escaped the card over its neighbours. */
+.booking-bar { position: relative; z-index: 20; }
+.booking-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 24px;
+}
+.booking-row .field { margin-bottom: 0; }
+.booking-row .dt-row { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+
+/* Never let the value wrap or overflow its control. */
+.dt-display, button.dt-time { min-width: 0; }
+button.dt-time .dt-time-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dt-cell { min-width: 0; }
+
+/* The panel is anchored to the field but sized for its own content, so a
+   narrow field cannot squash the shortcut chips. */
+.timemenu { right: auto; width: max(100%, 236px); }
+.cal { max-width: calc(100vw - 32px); }
+
+@media (max-width: 560px) {
+  .booking-row .dt-row { grid-template-columns: 1fr; }
+  .timemenu { width: 100%; }
+}
