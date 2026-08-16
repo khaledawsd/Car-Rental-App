@@ -1,6 +1,9 @@
 # Car Rental System
 
-A car rental management system built with Flask.
+A comprehensive car rental platform built with Flask, featuring robust security
+measures including SQL injection protection, XSS prevention, and secure password
+hashing. Implements secure user authentication, rental processing, and
+administrative controls.
 
 ## Features
 - User registration and login with an enforced password policy
@@ -11,6 +14,50 @@ A car rental management system built with Flask.
 - Rental history and user profile with spending summary
 - Admin management of users and rentals
 - Responsive UI with dark mode
+
+## Security
+
+Each item below is enforced in code and covered by the test suite.
+
+**Injection and output encoding**
+
+- **SQL injection** — every query goes through SQLAlchemy's expression API
+  (`select()`, `filter_by()`, `session.get()`), which sends values as bound
+  parameters. There is no raw SQL and no query built by string formatting
+  anywhere in the application.
+- **Cross-site scripting** — Jinja's autoescaping is left on for all templates
+  and never bypassed: no `|safe`, no `Markup()`, no `autoescape false`. The two
+  places JavaScript assigns `innerHTML` build their markup from fixed constants
+  and numbers derived from `Date`, never from user input; anything user-supplied
+  is written with `textContent`.
+
+**Authentication**
+
+- Passwords are hashed with **bcrypt** and never stored or logged in plain text.
+- A password policy requires 8+ characters with upper and lower case, a digit
+  and a symbol; administrators require 12+.
+- Login is rate limited to 5 attempts per minute and 30 per hour, keyed on both
+  client address and submitted username, so one attacker cannot lock out every
+  account.
+- Failed logins return a single message whether or not the account exists, and
+  an unknown username still runs a hash comparison so response timing does not
+  reveal which accounts are real.
+- New accounts cannot sign in until an administrator approves them.
+
+**Authorization and sessions**
+
+- Every administrative route is gated by a `roles_required` decorator that wraps
+  `login_required`, so authentication can never be omitted by mistake. Hiding a
+  navigation link is not treated as access control.
+- All state-changing operations are POST and carry a CSRF token; `CSRFProtect`
+  is enabled application-wide.
+- The post-login `?next=` parameter is validated against the request host, so it
+  cannot redirect off-site (CWE-601).
+- Session cookies are `HttpOnly`, `SameSite=Lax` and `Secure` outside local
+  development, and sessions expire after 12 hours.
+- The signing key is read from the environment. The app refuses to start under a
+  production WSGI server, or on a non-loopback address, without one.
+- Denied access, failed logins, approvals and deletions are all logged.
 
 ## Technologies Used
 - Python 3.11+
@@ -154,6 +201,12 @@ These are tracked and intentionally not yet addressed:
 - `/profile` and `/view_rentals` issue N+1 queries and are not paginated.
 - Schema is created with `db.create_all()`; Flask-Migrate is installed but no
   migrations have been generated yet. Set `AUTO_CREATE_DB=0` once that changes.
+- Output escaping is handled, but there is no Content-Security-Policy yet. The
+  templates no longer carry inline styles or scripts, so a strict policy is now
+  possible to add; it simply has not been.
+- HTTPS is expected to be terminated by a reverse proxy. The app sets `Secure`
+  cookies but does not itself redirect HTTP to HTTPS or send HSTS.
+- Cars can be added but not edited or deleted from the interface.
 - Routes, models, and forms share one module. The next refactor is an
   application factory and blueprints; `tests/conftest.py` documents where the
   current import-time seam is.
