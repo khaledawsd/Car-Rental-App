@@ -1,14 +1,24 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import errors %}
 {% block title %}Rent a Car - Car Rental System{% endblock %}
 {% block content %}
 <div class="shop-container">
     <h1>Available Cars</h1>
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {{ errors(form.start_date) }}
+            {{ errors(form.end_date) }}
+        </div>
+    {% endif %}
+    {% if not cars %}
+        <p>No cars are available right now. Please check back later.</p>
+    {% endif %}
     <div class="product-grid">
         {% for car in cars %}
         <div class="product-card">
             <h3>{{ car.model }}</h3>
             <p class="brand">{{ car.brand }}</p>
-            <p class="price">${{ car.price_per_day }} per day</p>
+            <p class="price">${{ '%.2f'|format(car.price_per_day) }} per day</p>
             <form method="POST" action="{{ url_for('rent') }}" class="purchase-form">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
@@ -40,6 +50,12 @@
         padding: 20px;
         text-align: center;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    body.dark-mode .product-card {
+        background-color: #34495e;
+    }
+    body.dark-mode .brand {
+        color: #bdc3c7;
     }
     .product-card:hover {
         transform: translateY(-5px);

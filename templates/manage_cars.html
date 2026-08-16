@@ -1,19 +1,14 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import field %}
 {% block title %}Manage Cars - Car Rental System{% endblock %}
 {% block content %}
 <div class="card">
     <h2>Manage Cars</h2>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.model }}
-        </div>
-        <div class="form-group">
-            {{ form.brand }}
-        </div>
-        <div class="form-group">
-            {{ form.price_per_day }}
-        </div>
+        {{ field(form.model) }}
+        {{ field(form.brand) }}
+        {{ field(form.price_per_day) }}
         <div class="form-group">
             {{ form.submit(class="btn btn-primary") }}
         </div>

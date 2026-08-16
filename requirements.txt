@@ -1,9 +1,31 @@
-Flask==3.0.0
+# Pinned exactly so a clone installs what was actually tested.
+# Verified together on Python 3.13 against the full test suite.
+
+# Framework
+Flask==3.1.3
+# Pinned alongside Flask rather than left to float: the dev server, ProxyFix
+# and the debugger all live here, and 3.0.x carried debugger advisories.
+Werkzeug==3.1.8
+
+# Extensions
 Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
 Flask-Bcrypt==1.0.1
 Flask-Migrate==4.1.0
-Flask-WTF==1.2.1
-python-dotenv==1.0.0
-email-validator==2.1.0
-Werkzeug==3.0.1
+Flask-WTF==1.3.0
+Flask-Limiter==4.1.1
+
+# Imported directly by app.py, so declared here rather than relied on as
+# transitive dependencies of the extensions above.
+SQLAlchemy==2.0.52
+WTForms==3.2.2
+click==8.4.2
+
+# Configuration
+python-dotenv==1.2.2
+
+# Production WSGI server. Pure Python and cross-platform, so the deployment
+# command in the README is the same one you can run locally -- including on
+# Windows, where gunicorn cannot run at all (it imports fcntl). See the README
+# if you prefer gunicorn on a Linux host.
+waitress==3.0.2

@@ -140,6 +140,35 @@
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
             outline: none;
         }
+        .form-group input.is-invalid {
+            border-color: #dc3545;
+        }
+        .form-group input.is-invalid:focus {
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+        }
+        .field-errors {
+            list-style: none;
+            margin: 6px 0 0;
+            padding: 0;
+            color: #dc3545;
+            font-size: 0.875em;
+            font-weight: 600;
+        }
+        body.dark-mode .field-errors {
+            color: #ff8a80;
+        }
+        .form-hint {
+            font-size: 0.875em;
+            opacity: 0.75;
+            margin-top: -10px;
+        }
+        .error-code {
+            font-size: 3em;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+            line-height: 1;
+        }
         .password-container {
             position: relative;
             display: flex;
@@ -349,7 +378,7 @@
                         <li><a href="{{ url_for('view_rentals') }}" {% if request.endpoint == 'view_rentals' %}class="active"{% endif %}>View Rentals</a></li>
                     {% else %}
                         <li><a href="{{ url_for('rent') }}" {% if request.endpoint == 'rent' %}class="active"{% endif %}>Rent a Car</a></li>
-                        <li><a href="{{ url_for('profile') }}" {% if request_endpoint == 'profile' %}class="active"{% endif %}>Profile</a></li>
+                        <li><a href="{{ url_for('profile') }}" {% if request.endpoint == 'profile' %}class="active"{% endif %}>Profile</a></li>
                     {% endif %}
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 {% else %}

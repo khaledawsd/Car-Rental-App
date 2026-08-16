@@ -1,0 +1,35 @@
+{# Shared form rendering. Every field goes through here so validation errors
+   can never be silently dropped again. #}
+
+{% macro errors(field) %}
+    {% if field.errors %}
+        <ul class="field-errors">
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
+
+{% macro field(f, label=false) %}
+    <div class="form-group">
+        {% if label %}{{ f.label }}{% endif %}
+        {{ f(class="is-invalid" if f.errors else "") }}
+        {{ errors(f) }}
+    </div>
+{% endmacro %}
+
+{# The caps-lock script walks input -> toggle -> indicator as siblings, so the
+   error list must sit outside .password-container. #}
+{% macro password_field(f, dom_id) %}
+    <div class="form-group">
+        <div class="password-container">
+            {{ f(class="is-invalid" if f.errors else "") }}
+            <span class="material-icons-outlined toggle-password"
+                  id="{{ dom_id }}-toggle"
+                  onclick="togglePassword('{{ dom_id }}')">visibility_off</span>
+            <span class="caps-lock-indicator">Caps Lock On</span>
+        </div>
+        {{ errors(f) }}
+    </div>
+{% endmacro %}

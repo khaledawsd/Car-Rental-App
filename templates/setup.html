@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import field, password_field %}
-{% block title %}Register - Car Rental System{% endblock %}
+{% block title %}First-run setup - Car Rental System{% endblock %}
 {% block content %}
     <div class="form-container">
-        <h2>Register</h2>
+        <h2>Welcome</h2>
+        <p>This installation has no administrator yet. Create one to get started.</p>
         <p class="form-hint">
-            Passwords need at least 8 characters, including upper and lower case,
-            a number, and a special character.
+            At least 12 characters, with upper and lower case, a number, and a
+            special character. This page disappears once the account exists.
         </p>
         <form method="POST" action="">
             {{ form.hidden_tag() }}
@@ -18,4 +19,4 @@
             </div>
         </form>
     </div>
-{% endblock %} 
+{% endblock %}
