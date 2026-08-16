@@ -161,6 +161,37 @@
   function toDisplay(d) { return pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear(); }
   function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 
+  // Times are stored as 24-hour "HH:MM" -- that is what the server field
+  // parses -- and shown as 12-hour with AM/PM.
+  function to12h(hhmm) {
+    var bits = hhmm.split(":");
+    var h = Number(bits[0]);
+    var suffix = h >= 12 ? "PM" : "AM";
+    var shown = h % 12 === 0 ? 12 : h % 12;
+    return shown + ":" + bits[1] + " " + suffix;
+  }
+  function roundUpToSlot(date) {
+    var d = new Date(date);
+    d.setSeconds(0, 0);
+    var m = d.getMinutes();
+    if (m === 0 || m === 30) return d;
+    d.setMinutes(m < 30 ? 30 : 60);
+    return d;
+  }
+  var TIME_SLOTS = (function () {
+    var out = [];
+    for (var i = 0; i < 48; i++) {
+      out.push(pad(Math.floor(i / 2)) + ":" + (i % 2 ? "30" : "00"));
+    }
+    return out;
+  })();
+  var QUICK_TIMES = [
+    ["Morning", "08:00"],
+    ["Midday", "12:00"],
+    ["Afternoon", "14:00"],
+    ["Evening", "18:00"],
+  ];
+
   function initDateTime(root) {
     var hidden = root.querySelector("[data-dt-value]");
     var display = root.querySelector("[data-dt-display]");
@@ -170,15 +201,29 @@
     var selected = null;
     var view = midnight(new Date());
 
+    var menu = root.querySelector("[data-dt-timemenu]");
+    var label = root.querySelector("[data-dt-time-label]");
+
     var parts = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(hidden.value || "");
     if (parts) {
       selected = fromISO(parts[1]);
-      time.value = parts[2];
+      setTime(parts[2]);
       if (selected) { display.value = toDisplay(selected); view = new Date(selected); }
     }
 
+    function setTime(hhmm) {
+      time.dataset.value = hhmm;
+      label.textContent = to12h(hhmm);
+    }
+
+    function setDate(date) {
+      selected = midnight(date);
+      display.value = toDisplay(selected);
+      view = new Date(selected);
+    }
+
     function sync() {
-      hidden.value = selected ? toISO(selected) + "T" + (time.value || "10:00") : "";
+      hidden.value = selected ? toISO(selected) + "T" + (time.dataset.value || "10:00") : "";
     }
 
     function render() {
@@ -218,7 +263,80 @@
       if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
       if (event.key === "Escape") close();
     });
-    time.addEventListener("change", sync);
+
+    function renderMenu() {
+      var current = time.dataset.value;
+      var html = '<div class="timemenu-quick">';
+      if (time.hasAttribute("data-dt-now")) {
+        html += '<button type="button" data-quick-now class="wide">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11l-1 8.5 8.5-11.5H12z"/></svg>' +
+          "Now</button>";
+      }
+      QUICK_TIMES.forEach(function (q) {
+        html += '<button type="button" data-quick-time="' + q[1] + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.4V12l3 1.8"/></svg>' +
+          q[0] + "</button>";
+      });
+      html += '</div><div class="timemenu-list" role="presentation">';
+      TIME_SLOTS.forEach(function (slot) {
+        html += '<button type="button" class="timemenu-item" role="option" data-slot="' + slot +
+          '" aria-selected="' + (slot === current) + '">' + to12h(slot) +
+          '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6.5 9.5 17 4 11.5"/></svg></button>';
+      });
+      menu.innerHTML = html + "</div>";
+    }
+
+    function openMenu() {
+      renderMenu();
+      menu.hidden = false;
+      time.setAttribute("aria-expanded", "true");
+      var chosen = menu.querySelector('[aria-selected="true"]');
+      if (chosen) chosen.scrollIntoView({ block: "center" });
+    }
+    function closeMenu() {
+      menu.hidden = true;
+      time.setAttribute("aria-expanded", "false");
+    }
+
+    time.addEventListener("click", function () {
+      menu.hidden ? openMenu() : closeMenu();
+    });
+
+    menu.addEventListener("click", function (event) {
+      var slot = event.target.closest("[data-slot]");
+      if (slot) {
+        setTime(slot.getAttribute("data-slot"));
+        if (!selected) setDate(new Date());
+        sync(); closeMenu(); time.focus();
+        return;
+      }
+      if (event.target.closest("[data-quick-now]")) {
+        var soon = roundUpToSlot(new Date());
+        setDate(soon);
+        setTime(pad(soon.getHours()) + ":" + pad(soon.getMinutes()));
+        sync(); closeMenu(); time.focus();
+        return;
+      }
+      var preset = event.target.closest("[data-quick-time]");
+      if (!preset) return;
+      var hhmm = preset.getAttribute("data-quick-time");
+      setTime(hhmm);
+      if (!selected) {
+        // No date chosen yet: use today, or tomorrow if that slot has gone.
+        var when = midnight(new Date());
+        when.setHours(Number(hhmm.slice(0, 2)), Number(hhmm.slice(3)), 0, 0);
+        if (!allowPast && when <= new Date()) when.setDate(when.getDate() + 1);
+        setDate(when);
+      }
+      sync(); closeMenu(); time.focus();
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!menu.hidden && !root.contains(event.target)) closeMenu();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !menu.hidden) { closeMenu(); time.focus(); }
+    });
 
     cal.addEventListener("click", function (event) {
       var move = event.target.closest("[data-cal-move]");

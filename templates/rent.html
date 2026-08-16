@@ -36,7 +36,9 @@
                     <form method="POST" action="{{ url_for('rent') }}">
                         {{ form.hidden_tag() }}
                         <input type="hidden" name="car_id" value="{{ car.id }}">
-                        {{ datetime_field('start_date', 'Pick-up', form.start_date.data, 'start-' ~ car.id) }}
+                        {# "Now" only on pick-up; a return time relative to this
+                           moment is meaningless for a multi-day rental. #}
+                        {{ datetime_field('start_date', 'Pick-up', form.start_date.data, 'start-' ~ car.id, show_now=true) }}
                         {{ datetime_field('end_date', 'Return', form.end_date.data, 'end-' ~ car.id) }}
                         <button type="submit" class="btn btn-primary btn-block">{{ icon('car') }} Rent this car</button>
                     </form>
