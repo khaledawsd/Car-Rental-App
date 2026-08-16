@@ -1,101 +1,65 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import errors %}
+{% from '_macros.html' import errors, empty_state %}
+{% from '_icons.html' import icon %}
 {% block title %}Rent a Car - Car Rental System{% endblock %}
 {% block content %}
-<div class="shop-container">
-    <h1>Available Cars</h1>
-    {% if form.errors %}
-        <div class="alert alert-danger">
+<div class="page-head">
+    <div>
+        <h1>Available Cars</h1>
+        <p>Choose a car, then pick your dates. Minimum rental is 4 hours.</p>
+    </div>
+</div>
+
+{% if form.errors %}
+    <div class="flash flash-danger" role="alert" style="margin-bottom:22px">
+        {{ icon('alert') }}
+        <div class="flash-body">
             {{ errors(form.start_date) }}
             {{ errors(form.end_date) }}
         </div>
-    {% endif %}
-    {% if not cars %}
-        <p>No cars are available right now. Please check back later.</p>
-    {% endif %}
-    <div class="product-grid">
+    </div>
+{% endif %}
+
+{% if cars %}
+    <div class="grid-cards">
         {% for car in cars %}
-        <div class="product-card">
-            <h3>{{ car.model }}</h3>
-            <p class="brand">{{ car.brand }}</p>
-            <p class="price">${{ '%.2f'|format(car.price_per_day) }} per day</p>
-            <form method="POST" action="{{ url_for('rent') }}" class="purchase-form">
-                {{ form.hidden_tag() }}
-                <div class="form-group">
-                    {{ form.start_date.label }} {{ form.start_date }}
-                    {{ form.end_date.label }} {{ form.end_date }}
-                    <input type="hidden" name="car_id" value="{{ car.id }}">
-                    {{ form.submit(class="btn btn-primary") }}
+            <div class="card car-card">
+                <div class="card-body">
+                    <div>
+                        <h2 class="car-title">{{ car.model }}</h2>
+                        <p class="car-brand">{{ car.brand }}</p>
+                    </div>
+                    <div class="car-price">
+                        ${{ '%.2f'|format(car.price_per_day) }} <span>per day</span>
+                    </div>
+                    <div class="divider"></div>
+                    <form method="POST" action="{{ url_for('rent') }}">
+                        {{ form.hidden_tag() }}
+                        <input type="hidden" name="car_id" value="{{ car.id }}">
+                        <div class="field">
+                            <label for="start-{{ car.id }}">Start date and time</label>
+                            <div class="control">
+                                <input type="datetime-local" id="start-{{ car.id }}" name="start_date"
+                                       value="{{ form.start_date.data.strftime('%Y-%m-%dT%H:%M') if form.start_date.data }}" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="end-{{ car.id }}">End date and time</label>
+                            <div class="control">
+                                <input type="datetime-local" id="end-{{ car.id }}" name="end_date"
+                                       value="{{ form.end_date.data.strftime('%Y-%m-%dT%H:%M') if form.end_date.data }}" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">{{ icon('car') }} Rent this car</button>
+                    </form>
                 </div>
-            </form>
-        </div>
+            </div>
         {% endfor %}
     </div>
-</div>
-<style>
-    .shop-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
-    }
-    .product-card {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    body.dark-mode .product-card {
-        background-color: #34495e;
-    }
-    body.dark-mode .brand {
-        color: #bdc3c7;
-    }
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    .product-card h3 {
-        margin-top: 0;
-        color: var(--primary-color);
-    }
-    .brand {
-        font-size: 1.1em;
-        color: #555;
-    }
-    .price {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: var(--secondary-color);
-    }
-    .purchase-form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .quantity-input {
-        width: 60px;
-        padding: 5px;
-        margin-right: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-    .btn-primary {
-        background-color: #28a745;
-    }
-    .btn-primary:hover {
-        background-color: #218838;
-    }
-    @media (max-width: 768px) {
-        .product-grid {
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        }
-    }
-</style>
-{% endblock %} 
+{% else %}
+    <div class="card">
+        {{ empty_state('car', 'No cars available right now',
+                       'Every car is currently rented out. Please check back later.') }}
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,5 +1,6 @@
 {# Shared form rendering. Every field goes through here so validation errors
    can never be silently dropped again. #}
+{% from '_icons.html' import icon %}
 
 {% macro errors(field) %}
     {% if field.errors %}
@@ -11,25 +12,38 @@
     {% endif %}
 {% endmacro %}
 
-{% macro field(f, label=false) %}
-    <div class="form-group">
+{% macro field(f, label=true, leading=none, money=false) %}
+    <div class="field">
         {% if label %}{{ f.label }}{% endif %}
-        {{ f(class="is-invalid" if f.errors else "") }}
+        <div class="control">
+            {% if leading %}{{ icon(leading) }}{% endif %}
+            {% if money %}<span class="prefix">$</span>{% endif %}
+            {{ f(class="is-invalid" if f.errors else "", **({'data-money': '1'} if money else {})) }}
+        </div>
         {{ errors(f) }}
     </div>
 {% endmacro %}
 
-{# The caps-lock script walks input -> toggle -> indicator as siblings, so the
-   error list must sit outside .password-container. #}
-{% macro password_field(f, dom_id) %}
-    <div class="form-group">
-        <div class="password-container">
-            {{ f(class="is-invalid" if f.errors else "") }}
-            <span class="material-icons-outlined toggle-password"
-                  id="{{ dom_id }}-toggle"
-                  onclick="togglePassword('{{ dom_id }}')">visibility_off</span>
-            <span class="caps-lock-indicator">Caps Lock On</span>
+{% macro password_field(f, dom_id, label=true) %}
+    <div class="field">
+        {% if label %}{{ f.label }}{% endif %}
+        <div class="control">
+            {{ icon('lock') }}
+            {{ f(class="is-invalid" if f.errors else "", id=dom_id) }}
+            <button type="button" class="reveal" data-reveal="{{ dom_id }}" aria-label="Show password">
+                <span data-reveal-icon="on">{{ icon('eye', 'icon icon-sm') }}</span>
+                <span data-reveal-icon="off" hidden>{{ icon('eye-off', 'icon icon-sm') }}</span>
+            </button>
         </div>
+        <span class="caps-hint" data-caps>Caps Lock is on</span>
         {{ errors(f) }}
+    </div>
+{% endmacro %}
+
+{% macro empty_state(name, title, body) %}
+    <div class="empty">
+        <div class="icon-wrap">{{ icon(name) }}</div>
+        <h3>{{ title }}</h3>
+        <p>{{ body }}</p>
     </div>
 {% endmacro %}

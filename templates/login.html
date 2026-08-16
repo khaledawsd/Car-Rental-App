@@ -1,16 +1,36 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import field, password_field %}
+{% from '_auth_art.html' import auth_art %}
+{% from '_icons.html' import icon %}
+{% from '_ui.html' import theme_toggle, flashes %}
 {% block title %}Login - Car Rental System{% endblock %}
-{% block content %}
-    <div class="form-container">
-        <h2>Login</h2>
-        <form method="POST" action="">
-            {{ form.hidden_tag() }}
-            {{ field(form.username) }}
-            {{ password_field(form.password, 'password') }}
-            <div class="form-group">
-                {{ form.submit(class="btn btn-primary") }}
+
+{% block layout %}
+<div class="auth">
+    <div class="auth-art">{{ auth_art() }}</div>
+    <div class="auth-panel">
+        <div class="auth-topbar">{{ theme_toggle() }}</div>
+        <div class="auth-card">
+            {{ flashes() }}
+            <div class="card">
+                <div class="card-body">
+                    <div class="auth-badge">{{ icon('lock') }}</div>
+                    <h1 class="auth-title">Welcome Back</h1>
+                    <p class="auth-sub">Sign in to your account</p>
+
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        {{ field(form.username, label=false, leading='user') }}
+                        {{ password_field(form.password, 'password', label=false) }}
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+
+                    <p class="auth-foot">
+                        Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+                    </p>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
-{% endblock %} 
+</div>
+{% endblock %}

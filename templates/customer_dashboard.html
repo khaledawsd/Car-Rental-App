@@ -1,6 +1,53 @@
 {% extends 'base.html' %}
+{% from '_icons.html' import icon %}
 {% block title %}Dashboard - Car Rental System{% endblock %}
 {% block content %}
-    <h1>Welcome, {{ current_user.username }}!</h1>
-    <p>Select an option from the navigation bar to start renting a car.</p>
-{% endblock %} 
+<div class="page-head">
+    <div>
+        <h1>Welcome, {{ current_user.username }}!</h1>
+        <p>Pick a car and choose your dates to get started.</p>
+    </div>
+    <a href="{{ url_for('rent') }}" class="btn btn-primary">{{ icon('car') }} Rent a Car</a>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat-icon green">{{ icon('car') }}</span>
+        <div>
+            <div class="stat-value">{{ stats.cars_available }}</div>
+            <div class="stat-label">Cars available</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon">{{ icon('calendar') }}</span>
+        <div>
+            <div class="stat-value">{{ stats.my_rentals }}</div>
+            <div class="stat-label">Your rentals</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon green">{{ icon('wallet') }}</span>
+        <div>
+            <div class="stat-value">${{ '%.2f'|format(stats.my_spend) }}</div>
+            <div class="stat-label">Total spent</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head"><span class="accent"></span> How renting works</div>
+    <div class="card-body">
+        <ul class="list-reset" style="display:flex;flex-direction:column;gap:12px;color:var(--ink-mid)">
+            <li style="display:flex;gap:10px;align-items:flex-start">
+                {{ icon('car', 'icon icon-sm') }} Choose a car from the available fleet.
+            </li>
+            <li style="display:flex;gap:10px;align-items:flex-start">
+                {{ icon('clock', 'icon icon-sm') }} Rentals run for a minimum of 4 hours, priced by the hour from the daily rate.
+            </li>
+            <li style="display:flex;gap:10px;align-items:flex-start">
+                {{ icon('wallet', 'icon icon-sm') }} Your spending summary is on your profile.
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

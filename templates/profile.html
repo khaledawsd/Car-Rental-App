@@ -1,16 +1,56 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import empty_state %}
+{% from '_icons.html' import icon %}
 {% block title %}Profile - Car Rental System{% endblock %}
 {% block content %}
-<div class="card">
-    <h2>User Profile</h2>
-    <p>Total Spent: ${{ total_spent }}</p>
-    <div class="card">
-        <h3>Expenses by Car</h3>
-        <ul>
-            {% for car, amount in car_expenses.items() %}
-                <li>{{ car }}: ${{ amount }}</li>
-            {% endfor %}
-        </ul>
+<div class="page-head">
+    <div>
+        <h1>{{ current_user.username }}</h1>
+        <p>Your rental activity and spending</p>
+    </div>
+    <a href="{{ url_for('rent') }}" class="btn btn-primary">{{ icon('car') }} Rent a Car</a>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat-icon green">{{ icon('wallet') }}</span>
+        <div>
+            <div class="stat-value">${{ '%.2f'|format(total_spent) }}</div>
+            <div class="stat-label">Total spent</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon">{{ icon('calendar') }}</span>
+        <div>
+            <div class="stat-value">{{ rental_count }}</div>
+            <div class="stat-label">Rentals booked</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon">{{ icon('car') }}</span>
+        <div>
+            <div class="stat-value">{{ car_expenses|length }}</div>
+            <div class="stat-label">Different cars</div>
+        </div>
     </div>
 </div>
-{% endblock %} 
+
+<div class="card">
+    <div class="card-head">{{ icon('wallet') }} Expenses by car</div>
+    {% if car_expenses %}
+        <div class="card-body">
+            <ul class="list-reset">
+                {% for car, amount in car_expenses.items() %}
+                    <li class="kv">
+                        <span class="kv-label">{{ car }}</span>
+                        <span class="kv-value">${{ '%.2f'|format(amount) }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        {{ empty_state('wallet', 'Nothing rented yet',
+                       'Once you book a car, your spending breakdown appears here.') }}
+    {% endif %}
+</div>
+{% endblock %}

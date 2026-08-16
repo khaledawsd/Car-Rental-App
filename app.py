@@ -628,12 +628,32 @@ def register():
     return render_template("register.html", form=form)
 
 
+def _count(model, **filters):
+    stmt = db.select(db.func.count(model.id))
+    return db.session.scalar(stmt.filter_by(**filters) if filters else stmt) or 0
+
+
 @app.route("/dashboard")
 @login_required
 def dashboard():
     if current_user.is_admin:
-        return render_template("admin_dashboard.html")
-    return render_template("customer_dashboard.html")
+        stats = {
+            "cars_total": _count(Car),
+            "cars_available": _count(Car, available=True),
+            "pending_users": _count(User, approved=False),
+            "rentals_total": _count(Rental),
+            "revenue": db.session.scalar(db.select(db.func.sum(Rental.total_price))) or 0,
+        }
+        return render_template("admin_dashboard.html", stats=stats)
+
+    stats = {
+        "cars_available": _count(Car, available=True),
+        "my_rentals": _count(Rental, user_id=current_user.id),
+        "my_spend": db.session.scalar(
+            db.select(db.func.sum(Rental.total_price)).filter_by(user_id=current_user.id)
+        ) or 0,
+    }
+    return render_template("customer_dashboard.html", stats=stats)
 
 
 @app.route("/rent", methods=["GET", "POST"])
@@ -683,7 +703,12 @@ def profile():
     for rental in current_user.rentals:
         car_expenses.setdefault(rental.car.model, 0)
         car_expenses[rental.car.model] += rental.total_price
-    return render_template("profile.html", total_spent=total_spent, car_expenses=car_expenses)
+    return render_template(
+        "profile.html",
+        total_spent=total_spent,
+        car_expenses=car_expenses,
+        rental_count=len(current_user.rentals),
+    )
 
 
 @app.route("/manage_cars", methods=["GET", "POST"])
@@ -704,8 +729,10 @@ def manage_cars():
         current_app.logger.info("car.created id=%s by=%s", car.id, current_user.id)
         flash("Car has been added!", "success")
         return redirect(url_for("manage_cars"))
-    available_cars = db.session.scalars(db.select(Car).filter_by(available=True)).all()
-    return render_template("manage_cars.html", form=form, cars=available_cars)
+    # The whole fleet, with a status column. Listing only available cars made
+    # rented ones vanish from the admin's view entirely.
+    cars = db.session.scalars(db.select(Car).order_by(Car.brand, Car.model)).all()
+    return render_template("manage_cars.html", form=form, cars=cars)
 
 
 @app.route("/manage_users")

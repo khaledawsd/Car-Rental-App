@@ -1,21 +1,41 @@
 {% extends 'base.html' %}
 {% from '_macros.html' import field, password_field %}
+{% from '_auth_art.html' import auth_art %}
+{% from '_icons.html' import icon %}
+{% from '_ui.html' import theme_toggle, flashes %}
 {% block title %}Register - Car Rental System{% endblock %}
-{% block content %}
-    <div class="form-container">
-        <h2>Register</h2>
-        <p class="form-hint">
-            Passwords need at least 8 characters, including upper and lower case,
-            a number, and a special character.
-        </p>
-        <form method="POST" action="">
-            {{ form.hidden_tag() }}
-            {{ field(form.username) }}
-            {{ password_field(form.password, 'password') }}
-            {{ password_field(form.confirm_password, 'confirm_password') }}
-            <div class="form-group">
-                {{ form.submit(class="btn btn-primary") }}
+
+{% block layout %}
+<div class="auth">
+    <div class="auth-art">{{ auth_art() }}</div>
+    <div class="auth-panel">
+        <div class="auth-topbar">{{ theme_toggle() }}</div>
+        <div class="auth-card">
+            {{ flashes() }}
+            <div class="card">
+                <div class="card-body">
+                    <div class="auth-badge">{{ icon('user-plus') }}</div>
+                    <h1 class="auth-title">Create Account</h1>
+                    <p class="auth-sub">An administrator will review your registration</p>
+
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        {{ field(form.username, label=false, leading='user') }}
+                        {{ password_field(form.password, 'password', label=false) }}
+                        {{ password_field(form.confirm_password, 'confirm_password', label=false) }}
+                        <p class="hint" style="margin-bottom:18px">
+                            At least 8 characters, with upper and lower case, a number,
+                            and a special character.
+                        </p>
+                        <button type="submit" class="btn btn-primary btn-block">Create account</button>
+                    </form>
+
+                    <p class="auth-foot">
+                        Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+                    </p>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
-{% endblock %} 
+</div>
+{% endblock %}

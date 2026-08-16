@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
+{% from '_icons.html' import icon %}
 {% block title %}{{ title }} - Car Rental System{% endblock %}
 {% block content %}
-<div class="form-container">
+<div class="error-page">
     <p class="error-code">{{ code }}</p>
-    <h2>{{ title }}</h2>
-    <p>{{ message }}</p>
+    <h1 style="margin:0 0 8px;font-size:22px">{{ title }}</h1>
+    <p style="color:var(--ink-mid);margin:0 0 24px">{{ message }}</p>
     <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('login') }}"
        class="btn btn-primary">
+        {{ icon('dashboard') }}
         {{ 'Back to dashboard' if current_user.is_authenticated else 'Back to login' }}
     </a>
 </div>

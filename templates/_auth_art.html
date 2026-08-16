@@ -1,0 +1,65 @@
+{# Illustration for the authentication pages. Inline SVG rather than a raster
+   asset: it scales, themes with the palette, and costs no extra request. #}
+
+{% macro auth_art() %}
+<svg viewBox="0 0 520 360" role="img" aria-label="Illustration of a car in a city">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--blue-500)" stop-opacity=".10"/>
+      <stop offset="100%" stop-color="var(--blue-500)" stop-opacity=".02"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dbe4f0"/>
+    </linearGradient>
+  </defs>
+
+  <g fill="var(--blue-600)" opacity=".13">
+    <rect x="36"  y="150" width="46" height="120" rx="4"/>
+    <rect x="92"  y="112" width="38" height="158" rx="4"/>
+    <rect x="140" y="168" width="52" height="102" rx="4"/>
+    <rect x="330" y="132" width="42" height="138" rx="4"/>
+    <rect x="382" y="96"  width="34" height="174" rx="4"/>
+    <rect x="426" y="158" width="50" height="112" rx="4"/>
+  </g>
+  <g fill="var(--surface)" opacity=".5">
+    <rect x="46" y="164" width="9" height="12" rx="1.5"/><rect x="63" y="164" width="9" height="12" rx="1.5"/>
+    <rect x="46" y="188" width="9" height="12" rx="1.5"/><rect x="63" y="188" width="9" height="12" rx="1.5"/>
+    <rect x="102" y="128" width="8" height="11" rx="1.5"/><rect x="116" y="128" width="8" height="11" rx="1.5"/>
+    <rect x="102" y="150" width="8" height="11" rx="1.5"/><rect x="116" y="150" width="8" height="11" rx="1.5"/>
+    <rect x="392" y="112" width="8" height="11" rx="1.5"/><rect x="406" y="112" width="8" height="11" rx="1.5"/>
+    <rect x="392" y="134" width="8" height="11" rx="1.5"/><rect x="406" y="134" width="8" height="11" rx="1.5"/>
+  </g>
+
+  <ellipse cx="260" cy="292" rx="196" ry="16" fill="url(#sky)"/>
+
+  <g fill="var(--blue-600)" opacity=".16">
+    <ellipse cx="96"  cy="64" rx="30" ry="13"/><ellipse cx="120" cy="58" rx="21" ry="11"/>
+    <ellipse cx="418" cy="82" rx="26" ry="11"/><ellipse cx="396" cy="77" rx="18" ry="9"/>
+  </g>
+
+  <g>
+    <path d="M136 262c-11 0-18-7-18-17v-19c0-11 8-19 19-21l30-5 27-25c8-8 18-12 29-12h58c12 0 23 5 30 14l20 24 32 6c12 2 20 11 20 22v16c0 10-7 17-17 17z"
+          fill="url(#body)" stroke="var(--blue-600)" stroke-opacity=".28" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M205 178h-14c-7 0-13 2-18 7l-19 18h51zM222 178h50c7 0 14 3 18 9l14 16h-82z"
+          fill="var(--blue-500)" opacity=".22"/>
+    <path d="M126 232h34M360 232h30" stroke="var(--blue-600)" stroke-opacity=".2" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="132" cy="234" rx="10" ry="7" fill="var(--amber-500)" opacity=".55"/>
+    <ellipse cx="385" cy="234" rx="8" ry="6" fill="var(--red-500)" opacity=".4"/>
+  </g>
+
+  <g>
+    <circle cx="192" cy="262" r="31" fill="#1f2937"/><circle cx="192" cy="262" r="15" fill="#e5e7eb"/>
+    <circle cx="192" cy="262" r="7"  fill="#9ca3af"/>
+    <circle cx="330" cy="262" r="31" fill="#1f2937"/><circle cx="330" cy="262" r="15" fill="#e5e7eb"/>
+    <circle cx="330" cy="262" r="7"  fill="#9ca3af"/>
+  </g>
+
+  <g stroke="var(--green-600)" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5">
+    <path d="M462 292v-40"/>
+    <path d="M462 268c-12 0-20-8-20-19 11 0 20 8 20 19zM462 258c0-11 9-19 20-19 0 11-9 19-20 19z"
+          fill="var(--green-500)" fill-opacity=".2"/>
+  </g>
+  <path d="M64 292h392" stroke="var(--blue-600)" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
+</svg>
+{% endmacro %}

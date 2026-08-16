@@ -1,0 +1,29 @@
+{# Chrome shared between the app shell and the standalone auth pages.
+   Kept in its own file because a macro defined in base.html's body is not
+   reliably visible inside a child template's overridden block. #}
+{% from '_icons.html' import icon %}
+
+{% macro theme_toggle() %}
+    <button type="button" class="icon-btn" data-theme-toggle aria-label="Switch theme">
+        <span data-theme-icon="moon">{{ icon('moon') }}</span>
+        <span data-theme-icon="sun" hidden>{{ icon('sun') }}</span>
+    </button>
+{% endmacro %}
+
+{% macro flashes() %}
+    {% set icons = {'success': 'check-circle', 'danger': 'alert', 'warning': 'alert', 'info': 'info'} %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    {% set cat = category if category in icons else 'info' %}
+                    <div class="flash flash-{{ cat }}" role="{{ 'alert' if cat == 'danger' else 'status' }}">
+                        {{ icon(icons[cat]) }}
+                        <div class="flash-body">{{ message }}</div>
+                        <button type="button" class="flash-close" data-flash-close aria-label="Dismiss">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+{% endmacro %}

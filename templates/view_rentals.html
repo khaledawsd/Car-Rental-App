@@ -1,12 +1,48 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import empty_state %}
+{% from '_icons.html' import icon %}
 {% block title %}View Rentals - Car Rental System{% endblock %}
 {% block content %}
-<div class="card">
-    <h2>Rental Records</h2>
-    <ul>
-        {% for rental in rentals %}
-            <li>Car: {{ rental.car.model }} ({{ rental.car.brand }}), User: {{ rental.user.username }}, Start Date: {{ rental.start_date }}, End Date: {{ rental.end_date }}, Total Price: ${{ rental.total_price }}</li>
-        {% endfor %}
-    </ul>
+<div class="page-head">
+    <div>
+        <h1>Rental Records</h1>
+        <p>Every booking made through the system</p>
+    </div>
 </div>
-{% endblock %} 
+
+<div class="card">
+    <div class="card-head">{{ icon('calendar') }} Rentals</div>
+    {% if rentals %}
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr>
+                        <th>Car</th>
+                        <th>Customer</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rental in rentals %}
+                        <tr>
+                            <td>
+                                <span class="cell-strong">{{ rental.car.model }}</span>
+                                <span style="color:var(--ink-mid)"> · {{ rental.car.brand }}</span>
+                            </td>
+                            <td>{{ rental.user.username }}</td>
+                            <td class="num">{{ rental.start_date.strftime('%d %b %Y, %H:%M') }}</td>
+                            <td class="num">{{ rental.end_date.strftime('%d %b %Y, %H:%M') }}</td>
+                            <td class="num cell-strong">${{ '%.2f'|format(rental.total_price) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        {{ empty_state('calendar', 'No rentals yet',
+                       'Bookings made by customers will be listed here.') }}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,25 +1,66 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import field %}
+{% from '_macros.html' import field, empty_state %}
+{% from '_icons.html' import icon %}
 {% block title %}Manage Cars - Car Rental System{% endblock %}
 {% block content %}
-<div class="card">
-    <h2>Manage Cars</h2>
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        {{ field(form.model) }}
-        {{ field(form.brand) }}
-        {{ field(form.price_per_day) }}
-        <div class="form-group">
-            {{ form.submit(class="btn btn-primary") }}
-        </div>
-    </form>
-    <div class="card">
-        <h3>Existing Available Cars:</h3>
-        <ul>
-            {% for car in cars %}
-                <li>{{ car.model }} ({{ car.brand }}) - ${{ car.price_per_day }} per day</li>
-            {% endfor %}
-        </ul>
+<div class="page-head">
+    <div>
+        <h1>Manage Cars</h1>
+        <p>Add new cars and manage your fleet</p>
     </div>
 </div>
-{% endblock %} 
+
+<div class="card">
+    <div class="card-head"><span class="accent"></span> Add New Car</div>
+    <div class="card-body">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <div class="form-grid">
+                {{ field(form.model) }}
+                {{ field(form.brand) }}
+                {{ field(form.price_per_day, money=true) }}
+                <div class="field">
+                    <button type="submit" class="btn btn-success">{{ icon('car') }} Add Car</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head">{{ icon('car') }} Fleet</div>
+    {% if cars %}
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Brand</th>
+                        <th>Price per Day</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for car in cars %}
+                        <tr>
+                            <td class="cell-strong">{{ car.model }}</td>
+                            <td>{{ car.brand }}</td>
+                            <td class="num">${{ '%.2f'|format(car.price_per_day) }}</td>
+                            <td>
+                                {% if car.available %}
+                                    <span class="pill pill-ok">Available</span>
+                                {% else %}
+                                    <span class="pill pill-info">Rented</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        {{ empty_state('car', 'No cars yet',
+                       'Add your first car using the form above and it will appear here.') }}
+    {% endif %}
+</div>
+{% endblock %}

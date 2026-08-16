@@ -1,6 +1,62 @@
 {% extends 'base.html' %}
-{% block title %}Admin Dashboard - Car Rental System{% endblock %}
+{% from '_icons.html' import icon %}
+{% block title %}Dashboard - Car Rental System{% endblock %}
 {% block content %}
-    <h1>Welcome, {{ current_user.username }}!</h1>
-    <p>Select an option from the navigation bar to manage cars, users, or view rentals.</p>
-{% endblock %} 
+<div class="page-head">
+    <div>
+        <h1>Welcome, {{ current_user.username }}!</h1>
+        <p>Here is how the fleet is doing today.</p>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat-icon">{{ icon('car') }}</span>
+        <div>
+            <div class="stat-value">{{ stats.cars_total }}</div>
+            <div class="stat-label">Cars in fleet</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon green">{{ icon('check-circle') }}</span>
+        <div>
+            <div class="stat-value">{{ stats.cars_available }}</div>
+            <div class="stat-label">Available now</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon amber">{{ icon('clock') }}</span>
+        <div>
+            <div class="stat-value">{{ stats.pending_users }}</div>
+            <div class="stat-label">Awaiting approval</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon">{{ icon('calendar') }}</span>
+        <div>
+            <div class="stat-value">{{ stats.rentals_total }}</div>
+            <div class="stat-label">Total rentals</div>
+        </div>
+    </div>
+    <div class="stat">
+        <span class="stat-icon green">{{ icon('wallet') }}</span>
+        <div>
+            <div class="stat-value">${{ '%.2f'|format(stats.revenue) }}</div>
+            <div class="stat-label">Total revenue</div>
+        </div>
+    </div>
+</div>
+
+{% if stats.pending_users %}
+<div class="card">
+    <div class="card-head"><span class="accent"></span> Needs your attention</div>
+    <div class="card-body">
+        <p style="margin:0 0 16px;color:var(--ink-mid)">
+            {{ stats.pending_users }} account{{ '' if stats.pending_users == 1 else 's' }}
+            {{ 'is' if stats.pending_users == 1 else 'are' }} waiting for approval and cannot sign in yet.
+        </p>
+        <a href="{{ url_for('manage_users') }}" class="btn btn-primary">{{ icon('users') }} Review users</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
