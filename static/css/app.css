@@ -643,3 +643,46 @@ select.dt-time {
   .dt-row { grid-template-columns: 1fr; }
   .cal { width: 100%; }
 }
+
+/* ---------- theme switch ---------- */
+/* Transitions are applied only while the theme is actually changing. Leaving
+   them on permanently would make every hover and focus feel laggy, and would
+   animate the whole page on first paint. */
+html.theme-anim,
+html.theme-anim *,
+html.theme-anim *::before,
+html.theme-anim *::after {
+  transition: background-color .28s ease,
+              background-image .28s ease,
+              border-color .28s ease,
+              color .28s ease,
+              fill .28s ease,
+              stroke .28s ease,
+              box-shadow .28s ease !important;
+}
+
+/* The icon swap is driven by the root attribute rather than by JS toggling
+   `hidden`, because a hidden element cannot transition. */
+.theme-toggle { position: relative; overflow: hidden; }
+.theme-toggle [data-theme-icon] {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity .22s ease, transform .38s cubic-bezier(.4, 0, .2, 1);
+}
+.theme-toggle [data-theme-icon="moon"] { opacity: 1; transform: none; }
+.theme-toggle [data-theme-icon="sun"]  { opacity: 0; transform: rotate(-90deg) scale(.5); }
+html[data-theme="dark"] .theme-toggle [data-theme-icon="moon"] { opacity: 0; transform: rotate(90deg) scale(.5); }
+html[data-theme="dark"] .theme-toggle [data-theme-icon="sun"]  { opacity: 1; transform: none; }
+
+/* Placed after the rules above so it outranks them at equal specificity. */
+@media (prefers-reduced-motion: reduce) {
+  html.theme-anim,
+  html.theme-anim *,
+  html.theme-anim *::before,
+  html.theme-anim *::after,
+  .theme-toggle [data-theme-icon] {
+    transition: none !important;
+  }
+}

@@ -3,10 +3,12 @@
    reliably visible inside a child template's overridden block. #}
 {% from '_icons.html' import icon %}
 
+{# Both icons stay in the DOM and are cross-faded by CSS; a `hidden` element
+   cannot transition. They are aria-hidden, and the button carries the label. #}
 {% macro theme_toggle() %}
-    <button type="button" class="icon-btn" data-theme-toggle aria-label="Switch theme">
+    <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme">
         <span data-theme-icon="moon">{{ icon('moon') }}</span>
-        <span data-theme-icon="sun" hidden>{{ icon('sun') }}</span>
+        <span data-theme-icon="sun">{{ icon('sun') }}</span>
     </button>
 {% endmacro %}
 

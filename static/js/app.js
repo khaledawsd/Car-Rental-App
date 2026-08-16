@@ -8,15 +8,29 @@
 
   /* ---- theme -------------------------------------------------------- */
   var root = document.documentElement;
+  var themeAnimTimer = null;
 
-  function applyTheme(theme) {
+  function prefersReducedMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  function applyTheme(theme, animate) {
+    // The transition class is added only for the duration of the switch. Left
+    // on, it would animate the first paint and make hovers feel sluggish.
+    if (animate && !prefersReducedMotion()) {
+      root.classList.add("theme-anim");
+      window.clearTimeout(themeAnimTimer);
+      themeAnimTimer = window.setTimeout(function () {
+        root.classList.remove("theme-anim");
+      }, 420);
+    }
     root.setAttribute("data-theme", theme);
+    // Icon visibility is CSS's job now; only the label needs updating here.
     document.querySelectorAll("[data-theme-toggle]").forEach(function (btn) {
-      var dark = theme === "dark";
-      btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
-      btn.querySelectorAll("[data-theme-icon]").forEach(function (icon) {
-        icon.hidden = icon.getAttribute("data-theme-icon") !== (dark ? "sun" : "moon");
-      });
+      btn.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+      );
     });
   }
 
@@ -30,13 +44,13 @@
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
-  applyTheme(storedTheme());
+  applyTheme(storedTheme(), false); // no animation on first paint
 
   document.addEventListener("click", function (event) {
     var toggle = event.target.closest("[data-theme-toggle]");
     if (!toggle) return;
     var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    applyTheme(next);
+    applyTheme(next, true);
     try { localStorage.setItem("theme", next); } catch (e) { /* ignore */ }
   });
 
