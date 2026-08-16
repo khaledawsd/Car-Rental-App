@@ -50,6 +50,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFError, CSRFProtect
+from sqlalchemy import delete as sql_delete, update as sql_update
 from sqlalchemy.exc import IntegrityError
 from wtforms import (
     DateTimeLocalField,
@@ -834,6 +835,30 @@ def ensure_schema(flask_app: Flask) -> None:
         db.create_all()
 
 
+# A plausible fleet for demos and screenshots. Brand and model are kept within
+# the 20-character limit the add-car form enforces, so anything seeded here
+# could equally have been typed into the UI.
+DEMO_FLEET = [
+    ("Toyota", "Corolla", 45.00),
+    ("Toyota", "Yaris", 38.00),
+    ("Honda", "Civic", 50.00),
+    ("Volkswagen", "Golf", 48.00),
+    ("Mazda", "Mazda3", 52.00),
+    ("Ford", "Focus", 46.00),
+    ("Skoda", "Octavia", 55.00),
+    ("Hyundai", "Tucson", 65.00),
+    ("Kia", "Sportage", 68.00),
+    ("Nissan", "Qashqai", 62.00),
+    ("Audi", "A4", 98.00),
+    ("BMW", "3 Series", 95.00),
+    ("Mercedes-Benz", "C-Class", 105.00),
+    ("Tesla", "Model 3", 120.00),
+    ("Land Rover", "Evoque", 140.00),
+    ("Porsche", "Macan", 185.00),
+    ("Ford", "Transit", 70.00),
+]
+
+
 # CLI
 @app.cli.command("init-db")
 def init_db_command():
@@ -870,6 +895,74 @@ def create_admin_command(username, password):
     global _admin_exists
     _admin_exists = True
     click.echo(f"Created admin {username!r} (id={user.id}).")
+
+
+@app.cli.command("clear-rentals")
+@click.option("--yes", is_flag=True, help="Skip the confirmation prompt.")
+def clear_rentals_command(yes):
+    """Delete every rental record and return all cars to available.
+
+    This is also the only way to free a car that has been rented: availability
+    is a boolean that is never reset when a rental ends, so a car leaves the
+    catalogue permanently after its first booking.
+    """
+    count = db.session.scalar(db.select(db.func.count(Rental.id))) or 0
+    if not count:
+        click.echo("No rentals to clear.")
+    elif not yes:
+        click.confirm(f"Delete {count} rental record(s)? This cannot be undone.", abort=True)
+
+    db.session.execute(sql_delete(Rental))
+    freed = db.session.execute(
+        sql_update(Car).where(Car.available.is_(False)).values(available=True)
+    ).rowcount
+    db.session.commit()
+    click.echo(f"Deleted {count} rental(s). Returned {freed} car(s) to available.")
+
+
+@app.cli.command("seed-fleet")
+@click.option("--replace", is_flag=True, help="Remove existing cars first.")
+def seed_fleet_command(replace):
+    """Add a realistic fleet, for demos and screenshots.
+
+    Idempotent: a car already present as the same brand and model is skipped,
+    so running it twice does not duplicate the fleet.
+    """
+    if replace:
+        blocking = db.session.scalar(db.select(db.func.count(Rental.id))) or 0
+        if blocking:
+            # Rental.car_id is NOT NULL, so deleting the parent would fail.
+            raise click.ClickException(
+                f"{blocking} rental(s) still reference these cars. "
+                "Run `flask clear-rentals` first."
+            )
+        removed = db.session.execute(sql_delete(Car)).rowcount
+        click.echo(f"Removed {removed} existing car(s).")
+
+    added = 0
+    for brand, model, price in DEMO_FLEET:
+        if db.session.scalar(db.select(Car).filter_by(brand=brand, model=model)):
+            continue
+        db.session.add(Car(brand=brand, model=model, price_per_day=price, available=True))
+        added += 1
+    db.session.commit()
+    total = db.session.scalar(db.select(db.func.count(Car.id)))
+    click.echo(f"Added {added} car(s). Fleet is now {total}.")
+
+
+@app.cli.command("reset-db")
+@click.option("--yes", is_flag=True, help="Skip the confirmation prompt.")
+def reset_db_command(yes):
+    """Drop every table and recreate them. Destroys all data, accounts included."""
+    if not yes:
+        click.confirm(
+            "Delete ALL data, including user accounts? This cannot be undone.", abort=True
+        )
+    db.drop_all()
+    db.create_all()
+    global _admin_exists
+    _admin_exists = False
+    click.echo("Database reset. Open /setup to create an administrator.")
 
 
 ensure_schema(app)

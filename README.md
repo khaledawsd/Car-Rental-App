@@ -108,6 +108,40 @@ setup page — for scripted installs — use:
 flask --app app create-admin
 ```
 
+## Maintenance commands
+
+All of these take `--app app`, e.g. `flask --app app seed-fleet`.
+
+| Command | What it does |
+| --- | --- |
+| `init-db` | Create any missing tables. |
+| `create-admin` | Create an administrator from the command line. |
+| `seed-fleet` | Add a realistic fleet of 17 cars. Idempotent; `--replace` clears existing cars first. |
+| `clear-rentals` | Delete all rental history and return every car to available. |
+| `reset-db` | Drop and recreate every table. Destroys accounts too. |
+
+`clear-rentals` is also the only way to free a car that has been rented, because
+availability is currently a boolean that is never reset when a rental ends.
+
+The three destructive commands prompt before acting; pass `--yes` to skip the
+prompt in a script. `seed-fleet --replace` refuses to run while any rental still
+references a car, rather than failing part-way through on a foreign key.
+
+## Screenshots
+
+To produce a populated system worth capturing:
+
+```bash
+flask --app app seed-fleet
+```
+
+Then sign in as a customer and book two or three cars, and leave one
+registration unapproved so the admin views have something to show. Pages worth
+capturing: **Login**, **Admin dashboard**, **Manage Cars**, **Manage Users**,
+**Rent a Car**, and **Profile** — each in both light and dark mode.
+
+_Add the images here._
+
 ## How it works
 
 - **First run** has no administrator, so every request redirects to `/setup`
