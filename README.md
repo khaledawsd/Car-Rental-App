@@ -119,8 +119,12 @@ flask --app app create-admin
   decorator is what actually gates the endpoint.
 - **Login** is rate limited to 5 attempts per minute and 30 per hour, keyed on
   both client address and submitted username.
-- **Rentals** require a minimum duration of 4 hours. Price is pro-rated by the
-  hour from the car's daily rate.
+- **Rentals** require a minimum duration of 4 hours and cannot start in the
+  past, with a 5-minute grace for clock skew. Price is pro-rated by the hour
+  from the car's daily rate.
+- **Dates** are shown as day/month/year everywhere. The picker is a custom
+  component rather than a native date input, because a native one renders in
+  the browser's locale and cannot be forced to a chosen format.
 
 ## Known limitations
 

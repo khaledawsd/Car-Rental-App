@@ -73,6 +73,10 @@ ROLE_CUSTOMER = "customer"
 MIN_RENTAL_DURATION = timedelta(hours=4)
 MIN_RENTAL_LABEL = "4 hours"
 
+# Tolerance on the past-booking rule, so clock skew between the browser and the
+# server does not reject a slot the user has only just selected.
+PAST_BOOKING_GRACE = timedelta(minutes=5)
+
 load_dotenv()
 
 
@@ -319,6 +323,18 @@ def _login_rate_key() -> str:
     return f"{get_remote_address()}|{username}"
 
 
+def not_in_the_past(form, field):
+    """Reject a pick-up time that has already passed.
+
+    Compared against a naive local clock, matching how the rest of the app
+    stores datetimes. If the browser and the server sit in different timezones
+    the boundary shifts by that offset; the timezone-aware rewrite is queued
+    behind the first migration.
+    """
+    if field.data and field.data < datetime.now() - PAST_BOOKING_GRACE:
+        raise ValidationError("Pick-up cannot be in the past.")
+
+
 def password_check(form, field):
     """Reject passwords that miss any required character class."""
     password = field.data or ""
@@ -411,7 +427,9 @@ class CarForm(FlaskForm):
 
 class RentalForm(FlaskForm):
     start_date = DateTimeLocalField(
-        "Start Date and Time", format="%Y-%m-%dT%H:%M", validators=[DataRequired()]
+        "Start Date and Time",
+        format="%Y-%m-%dT%H:%M",
+        validators=[DataRequired(), not_in_the_past],
     )
     end_date = DateTimeLocalField(
         "End Date and Time", format="%Y-%m-%dT%H:%M", validators=[DataRequired()]

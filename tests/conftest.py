@@ -9,6 +9,7 @@ import os
 import pathlib
 import sys
 import tempfile
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -26,6 +27,25 @@ import app as appmod  # noqa: E402
 
 ADMIN_PW = "AdminPassword1!"
 CUSTOMER_PW = "CustomerPass1!"
+
+DT_FORMAT = "%Y-%m-%dT%H:%M"
+
+
+def in_days(days, hour=10, minute=0):
+    """A booking datetime relative to now, as the form expects it.
+
+    These were hardcoded 2030 dates. Now that a pick-up in the past is
+    rejected, hardcoding a year would quietly turn the whole rental suite red
+    the moment that year arrives.
+    """
+    when = (datetime.now() + timedelta(days=days)).replace(
+        hour=hour, minute=minute, second=0, microsecond=0
+    )
+    return when.strftime(DT_FORMAT)
+
+
+def minutes_from_now(minutes):
+    return (datetime.now() + timedelta(minutes=minutes)).strftime(DT_FORMAT)
 
 
 @pytest.fixture(scope="session")
