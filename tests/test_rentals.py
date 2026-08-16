@@ -105,6 +105,45 @@ def test_empty_dates_do_not_raise(customer_client, make_car):
     assert response.status_code == 200
 
 
+def test_missing_dates_say_which_date_and_what_to_do(customer_client, make_car):
+    """The default wording is 'This field is required.', which names neither the
+    field nor the action, and appeared twice with nothing to tell them apart."""
+    car = make_car()
+    body = customer_client.post(
+        "/rent", data={"car_id": car, "start_date": "", "end_date": ""}
+    ).data
+
+    assert b"This field is required" not in body
+    assert body.count(b"Choose a pick-up date and time.") == 1
+    assert body.count(b"Choose a return date and time.") == 1
+
+
+def test_a_missing_date_is_reported_next_to_its_own_field(customer_client, make_car):
+    """Both messages used to be stacked in a banner away from the controls."""
+    car = make_car()
+    html = customer_client.post(
+        "/rent", data={"car_id": car, "start_date": "", "end_date": ""}
+    ).data.decode()
+
+    start = html.index('data-dt-display')
+    between = html[start : html.index("Choose a pick-up date and time.")]
+    # The message follows its own control, with no other field in between.
+    assert between.count('data-dt-display') == 1
+    assert 'class="dt-display is-invalid"' in html
+    assert html.count('data-dt-error') == 2
+
+
+def test_only_the_missing_date_is_flagged(customer_client, make_car):
+    car = make_car()
+    html = customer_client.post(
+        "/rent", data={"car_id": car, "start_date": in_days(30), "end_date": ""}
+    ).data.decode()
+
+    assert "Choose a return date and time." in html
+    assert "Choose a pick-up date and time." not in html
+    assert html.count("is-invalid") == 2  # the return date and its time button
+
+
 def test_renting_marks_the_car_unavailable(customer_client, make_car):
     car = make_car()
     _rent(customer_client, car, in_days(30), in_days(34))

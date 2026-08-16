@@ -830,3 +830,24 @@ button.dt-time .dt-time-label {
   .booking-row .dt-row { grid-template-columns: 1fr; }
   .timemenu { width: 100%; }
 }
+
+/* ---------- inline field errors ---------- */
+.dt-error {
+  margin: 7px 0 0;
+  color: var(--red-600);
+  font-size: 13px;
+  font-weight: 500;
+}
+html[data-theme="dark"] .dt-error { color: #fca5a5; }
+.dt-error[hidden] { display: none; }
+
+.dt-display.is-invalid,
+button.dt-time.is-invalid { border-color: var(--red-500); }
+button.dt-time.is-invalid:hover { border-color: var(--red-600); }
+
+.section-title {
+  font-size: 16px;
+  font-weight: 650;
+  margin: 0 0 16px;
+  color: var(--ink-mid);
+}

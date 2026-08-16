@@ -99,9 +99,40 @@
     if (cleaned !== input.value) input.value = cleaned;
   });
 
-  /* ---- destructive confirmation -------------------------------------- */
+  /* ---- submit guards --------------------------------------------------- */
   document.addEventListener("submit", function (event) {
     var form = event.target;
+
+    // Catch missing dates here rather than letting the server bounce the whole
+    // page back. The server still validates; this only saves the round trip.
+    var firstMissing = null;
+    form.querySelectorAll("[data-datetime]").forEach(function (group) {
+      var hidden = group.querySelector("[data-dt-value]");
+      var display = group.querySelector("[data-dt-display]");
+      var time = group.querySelector("[data-dt-time]");
+      var slot = group.querySelector("[data-dt-error]");
+      var empty = !hidden.value;
+
+      display.classList.toggle("is-invalid", empty);
+      if (time) time.classList.toggle("is-invalid", empty);
+      if (slot) {
+        if (empty) {
+          var name = (group.querySelector("label") || {}).textContent || "date";
+          slot.textContent = "Choose a " + name.trim().toLowerCase() + " date and time.";
+          slot.hidden = false;
+        } else {
+          slot.hidden = true;
+        }
+      }
+      if (empty && !firstMissing) firstMissing = display;
+    });
+    if (firstMissing) {
+      event.preventDefault();
+      firstMissing.scrollIntoView({ block: "center", behavior: "smooth" });
+      firstMissing.focus({ preventScroll: true });
+      return;
+    }
+
     var message = form.getAttribute("data-confirm");
     if (message && !window.confirm(message)) {
       event.preventDefault();

@@ -427,13 +427,20 @@ class CarForm(FlaskForm):
 
 
 class RentalForm(FlaskForm):
+    # WTForms' default "This field is required." names neither the field nor
+    # what to do about it, and the rent page shows two of them at once.
     start_date = DateTimeLocalField(
-        "Start Date and Time",
+        "Pick-up",
         format="%Y-%m-%dT%H:%M",
-        validators=[DataRequired(), not_in_the_past],
+        validators=[
+            DataRequired(message="Choose a pick-up date and time."),
+            not_in_the_past,
+        ],
     )
     end_date = DateTimeLocalField(
-        "End Date and Time", format="%Y-%m-%dT%H:%M", validators=[DataRequired()]
+        "Return",
+        format="%Y-%m-%dT%H:%M",
+        validators=[DataRequired(message="Choose a return date and time.")],
     )
     submit = SubmitField("Rent")
 

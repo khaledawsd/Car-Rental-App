@@ -45,8 +45,9 @@
    mm/dd/yyyy and nothing in HTML or CSS can change that. The visible field is
    therefore a custom picker that always reads day/month/year, backed by a
    hidden input carrying the ISO value the form field expects. #}
-{% macro datetime_field(name, label, value=none, dom_id=none, allow_past=false, show_now=false) %}
+{% macro datetime_field(name, label, value=none, dom_id=none, allow_past=false, show_now=false, field=none) %}
     {% set uid = dom_id or (name ~ '-' ~ range(100000, 999999) | random) %}
+    {% set err = field.errors[0] if field and field.errors else none %}
     <div class="field" data-datetime {% if allow_past %}data-dt-allow-past{% endif %}>
         <label for="{{ uid }}-date">{{ label }}</label>
         <input type="hidden" name="{{ name }}" data-dt-value
@@ -54,9 +55,10 @@
         <div class="dt-row">
             <div class="dt-cell">
                 {{ icon('calendar') }}
-                <input type="text" id="{{ uid }}-date" class="dt-display" data-dt-display
-                       placeholder="dd/mm/yyyy" readonly autocomplete="off"
+                <input type="text" id="{{ uid }}-date" class="dt-display{{ ' is-invalid' if err }}"
+                       data-dt-display placeholder="dd/mm/yyyy" readonly autocomplete="off"
                        role="combobox" aria-expanded="false" aria-haspopup="dialog"
+                       {% if err %}aria-invalid="true" aria-describedby="{{ uid }}-error"{% endif %}
                        value="{{ value.strftime('%d/%m/%Y') if value else '' }}">
                 <div class="cal" data-dt-cal hidden role="dialog" aria-label="Choose a date"></div>
             </div>
@@ -66,7 +68,7 @@
                    a select's list with the OS, so its rows, popup and scrollbar
                    cannot be styled. The list is built on first open, because the
                    rent page renders one of these per car. #}
-                <button type="button" class="dt-time" data-dt-time
+                <button type="button" class="dt-time{{ ' is-invalid' if err }}" data-dt-time
                         data-value="{{ value.strftime('%H:%M') if value else '10:00' }}"
                         {% if show_now %}data-dt-now{% endif %}
                         aria-haspopup="listbox" aria-expanded="false"
@@ -81,6 +83,11 @@
                      aria-label="{{ label }} time options"></div>
             </div>
         </div>
+        {# One slot, filled either by the server after a failed submit or by the
+           client-side guard before one. The message sits under the control it
+           refers to, not in a banner somewhere else on the page. #}
+        <p class="dt-error" id="{{ uid }}-error" data-dt-error
+           {% if not err %}hidden{% endif %} role="alert">{{ err or '' }}</p>
     </div>
 {% endmacro %}
 

@@ -10,12 +10,13 @@
     </div>
 </div>
 
+{# The individual messages are rendered under the fields themselves; this only
+   says where to look, so it does not repeat them. #}
 {% if form.errors %}
     <div class="flash flash-danger" role="alert" style="margin-bottom:22px">
         {{ icon('alert') }}
         <div class="flash-body">
-            {{ errors(form.start_date) }}
-            {{ errors(form.end_date) }}
+            Check your dates below, then choose a car.
         </div>
     </div>
 {% endif %}
@@ -28,18 +29,21 @@
     {{ form.hidden_tag() }}
 
     <div class="card booking-bar">
-        <div class="card-head">{{ icon('calendar') }} Your dates</div>
+        <div class="card-head">{{ icon('calendar') }} Step 1 &mdash; Your dates</div>
         <div class="card-body">
             <div class="booking-row">
                 {# "Now" only on pick-up; a return time relative to this moment
                    is meaningless for a multi-day rental. #}
-                {{ datetime_field('start_date', 'Pick-up', form.start_date.data, 'start', show_now=true) }}
-                {{ datetime_field('end_date', 'Return', form.end_date.data, 'end') }}
+                {{ datetime_field('start_date', 'Pick-up', form.start_date.data, 'start',
+                                  show_now=true, field=form.start_date) }}
+                {{ datetime_field('end_date', 'Return', form.end_date.data, 'end',
+                                  field=form.end_date) }}
             </div>
         </div>
     </div>
 
     {% if cars %}
+        <h2 class="section-title">Step 2 &mdash; Choose a car</h2>
         <div class="grid-cards">
             {% for car in cars %}
                 <div class="card car-card">
