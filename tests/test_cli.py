@@ -96,13 +96,13 @@ def test_seed_fleet_replace_refuses_while_rentals_reference_cars(
 
 
 def test_seed_fleet_replace_works_once_rentals_are_cleared(flask_app, make_car):
-    make_car("Betengan", "Kofta", price=25.0)
+    make_car("Placeholder", "Unbranded", price=25.0)
     run(flask_app, "clear-rentals", "--yes")
     result = run(flask_app, "seed-fleet", "--replace")
     assert result.exit_code == 0, result.output
     with flask_app.app_context():
         assert appmod.db.session.scalar(
-            appmod.db.select(appmod.Car).filter_by(model="Kofta")
+            appmod.db.select(appmod.Car).filter_by(model="Placeholder")
         ) is None
         assert appmod.db.session.scalar(
             appmod.db.select(appmod.Car).filter_by(model="Corolla")
