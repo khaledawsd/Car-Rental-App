@@ -521,3 +521,125 @@ html[data-theme="dark"] .auth-art { background: linear-gradient(160deg, #101a2e 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---------- number stepper ---------- */
+/* The native spinner is tiny, unstyleable and sits flush against the border,
+   so it is replaced with buttons that match the rest of the controls. */
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.control:has(.stepper) > input { padding-right: 46px; }
+.stepper {
+  position: absolute;
+  right: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stepper button {
+  width: 30px;
+  height: 17px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: background-color .12s, color .12s, border-color .12s;
+}
+.stepper button:hover { background: var(--blue-600); border-color: var(--blue-600); color: #fff; }
+.stepper button:active { transform: translateY(.5px); }
+.stepper svg { width: 13px; height: 13px; stroke-width: 2.4; }
+
+/* ---------- date + time ---------- */
+.dt-row { display: grid; grid-template-columns: 1.45fr 1fr; gap: 10px; }
+.dt-cell { position: relative; }
+
+.dt-display {
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.dt-display[readonly] { background: var(--surface); }
+.dt-cell > .icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-dim); pointer-events: none;
+}
+.dt-cell > .icon ~ input, .dt-cell > .icon ~ select { padding-left: 41px; }
+
+select.dt-time {
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 34px;
+}
+
+.cal {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 288px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+}
+.cal[hidden] { display: none; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-title { font-weight: 650; font-size: 14.5px; }
+.cal-nav {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--ink-mid);
+  cursor: pointer;
+}
+.cal-nav:hover { background: var(--surface-alt); color: var(--ink); }
+.cal-nav svg { width: 15px; height: 15px; stroke-width: 2.2; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-dow {
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--ink-dim);
+  padding-bottom: 6px;
+  text-transform: uppercase;
+}
+.cal-day {
+  aspect-ratio: 1;
+  border: none;
+  background: transparent;
+  border-radius: var(--r-sm);
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.cal-day:hover:not(:disabled) { background: var(--blue-50); color: var(--blue-700); }
+.cal-day.is-today { box-shadow: inset 0 0 0 1.5px var(--blue-600); font-weight: 650; }
+.cal-day.is-selected { background: var(--blue-600); color: #fff; font-weight: 650; }
+.cal-day:disabled { color: var(--ink-dim); opacity: .4; cursor: not-allowed; }
+.cal-day.is-blank { visibility: hidden; }
+.cal-foot { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
+.cal-link {
+  background: none; border: none; padding: 4px 6px;
+  font: inherit; font-size: 13px; font-weight: 600;
+  color: var(--blue-600); cursor: pointer; border-radius: var(--r-sm);
+}
+.cal-link:hover { background: var(--blue-50); }
+
+@media (max-width: 420px) {
+  .dt-row { grid-template-columns: 1fr; }
+  .cal { width: 100%; }
+}

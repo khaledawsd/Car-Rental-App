@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import errors, empty_state %}
+{% from '_macros.html' import errors, empty_state, datetime_field %}
 {% from '_icons.html' import icon %}
 {% block title %}Rent a Car - Car Rental System{% endblock %}
 {% block content %}
@@ -36,20 +36,8 @@
                     <form method="POST" action="{{ url_for('rent') }}">
                         {{ form.hidden_tag() }}
                         <input type="hidden" name="car_id" value="{{ car.id }}">
-                        <div class="field">
-                            <label for="start-{{ car.id }}">Start date and time</label>
-                            <div class="control">
-                                <input type="datetime-local" id="start-{{ car.id }}" name="start_date"
-                                       value="{{ form.start_date.data.strftime('%Y-%m-%dT%H:%M') if form.start_date.data }}" required>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label for="end-{{ car.id }}">End date and time</label>
-                            <div class="control">
-                                <input type="datetime-local" id="end-{{ car.id }}" name="end_date"
-                                       value="{{ form.end_date.data.strftime('%Y-%m-%dT%H:%M') if form.end_date.data }}" required>
-                            </div>
-                        </div>
+                        {{ datetime_field('start_date', 'Pick-up', form.start_date.data, 'start-' ~ car.id) }}
+                        {{ datetime_field('end_date', 'Return', form.end_date.data, 'end-' ~ car.id) }}
                         <button type="submit" class="btn btn-primary btn-block">{{ icon('car') }} Rent this car</button>
                     </form>
                 </div>

@@ -12,15 +12,69 @@
     {% endif %}
 {% endmacro %}
 
-{% macro field(f, label=true, leading=none, money=false) %}
+{% macro field(f, label=true, leading=none, money=false, step=1) %}
     <div class="field">
         {% if label %}{{ f.label }}{% endif %}
         <div class="control">
             {% if leading %}{{ icon(leading) }}{% endif %}
             {% if money %}<span class="prefix">$</span>{% endif %}
             {{ f(class="is-invalid" if f.errors else "", **({'data-money': '1'} if money else {})) }}
+            {% if money %}
+                {# The native number spinner is unstyleable and sits flush against
+                   the border. These replace it and step by whole units. #}
+                <span class="stepper">
+                    <button type="button" data-step="{{ step }}" data-step-for="{{ f.id }}"
+                            aria-label="Increase {{ f.label.text | lower }}" tabindex="-1">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                             stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+                    </button>
+                    <button type="button" data-step="-{{ step }}" data-step-for="{{ f.id }}"
+                            aria-label="Decrease {{ f.label.text | lower }}" tabindex="-1">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                             stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </span>
+            {% endif %}
         </div>
         {{ errors(f) }}
+    </div>
+{% endmacro %}
+
+{# Date and time as two controls.
+   A native date input renders in the browser's locale, so a US machine shows
+   mm/dd/yyyy and nothing in HTML or CSS can change that. The visible field is
+   therefore a custom picker that always reads day/month/year, backed by a
+   hidden input carrying the ISO value the form field expects. #}
+{% macro datetime_field(name, label, value=none, dom_id=none, allow_past=false) %}
+    {% set uid = dom_id or (name ~ '-' ~ range(100000, 999999) | random) %}
+    <div class="field" data-datetime {% if allow_past %}data-dt-allow-past{% endif %}>
+        <label for="{{ uid }}-date">{{ label }}</label>
+        <input type="hidden" name="{{ name }}" data-dt-value
+               value="{{ value.strftime('%Y-%m-%dT%H:%M') if value else '' }}">
+        <div class="dt-row">
+            <div class="dt-cell">
+                {{ icon('calendar') }}
+                <input type="text" id="{{ uid }}-date" class="dt-display" data-dt-display
+                       placeholder="dd/mm/yyyy" readonly autocomplete="off"
+                       role="combobox" aria-expanded="false" aria-haspopup="dialog"
+                       value="{{ value.strftime('%d/%m/%Y') if value else '' }}">
+                <div class="cal" data-dt-cal hidden role="dialog" aria-label="Choose a date"></div>
+            </div>
+            <div class="dt-cell">
+                {{ icon('clock') }}
+                <select class="dt-time" data-dt-time aria-label="{{ label }} time">
+                    {% for half in range(48) %}
+                        {% set hh = '%02d' % (half // 2) %}
+                        {% set mm = '30' if half % 2 else '00' %}
+                        <option value="{{ hh }}:{{ mm }}"
+                                {% if value and value.strftime('%H:%M') == hh ~ ':' ~ mm %}selected{% endif %}
+                                {% if not value and hh ~ ':' ~ mm == '10:00' %}selected{% endif %}>
+                            {{ hh }}:{{ mm }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
     </div>
 {% endmacro %}
 
